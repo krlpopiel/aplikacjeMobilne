@@ -60,3 +60,5 @@ const data = [
         quant: 95
     }
 ]
+
+export { data }

@@ -1,43 +1,65 @@
+import { data } from "@/data/fruits";
 import { useState } from "react";
-import { Text, View, Button, StyleSheet } from "react-native";
+import { Text, View, Button, StyleSheet, FlatList } from "react-native";
 
 export default function Index() {
 
-  const [counter, setCounter] = useState(0);
-
   return (
-    <div>
+    <View style={styles.mainContainer}>
     <View
       style={styles.container}
     >
-      <Text>Zadanie drugie</Text>
+      <Text>Zadanie trzecie</Text>
+      <Text>Nasze owoce</Text>
        </View>
     <View
-      style={styles.btns}
+      style={styles.listContainer}
     >
-      <Button title="Zmniejsz" onPress={() => setCounter(counter - 1)} />
-      <br></br>
-      <Button title="Zwiększ" onPress={() => setCounter(counter + 1)} />
-      <br></br>      
+      <FlatList
+        data = {data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.listItem}>
+            <Text>{item.name}</Text>
+            <Text>Price: {item.price}</Text>
+            <Text>Quantity: {item.quant}</Text>
+          </View>
+        )}
+      />    
       
     </View>
-    <View style={styles.container}>
-      <Text>Counter: {counter}</Text>
     </View>
-    </div>
   );
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f5f5f5",
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: 20,
   },
-  btns:{
-    flexDirection: "row",
-    justifyContent: "center",
-    width: "100%",
+  listContainer: {
+    flex: 4,
+    backgroundColor: "#f5f5f5",
+    marginTop: 20,
+  },
+  listItem: {
+    padding: 15,
+    marginVertical: 8,
+    marginHorizontal: 12,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   }
 });
