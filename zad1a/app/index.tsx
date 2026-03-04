@@ -1,6 +1,6 @@
 import { data } from "@/data/fruits";
 import { useState } from "react";
-import { Text, View, Button, StyleSheet, FlatList } from "react-native";
+import { Text, View, Button, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 
 export default function Index() {
 
@@ -19,11 +19,13 @@ export default function Index() {
         data = {data}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.listItem}>
-            <Text>{item.name}</Text>
-            <Text>Price: {item.price}</Text>
-            <Text>Quantity: {item.quant}</Text>
-          </View>
+          <TouchableOpacity>
+            <View style={styles.listItem}>
+              <Text>{item.name}</Text>
+              <Text>Price: {item.price}</Text>
+              <Text>Quantity: {item.quant}</Text>
+            </View>
+          </TouchableOpacity>
         )}
       />    
       
