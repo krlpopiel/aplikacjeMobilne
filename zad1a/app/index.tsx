@@ -1,8 +1,23 @@
-import { data } from "@/data/fruits";
-import { useState } from "react";
+import { supabase } from "@/data/fruits";
+import { useState, useEffect } from "react";
 import { Text, View, Button, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 
 export default function Index() {
+
+  const [data, setData] = useState<any[]>([]);
+
+  const fetchData = async () => {
+    const { data, error } = await supabase.from("owoce").select("*");
+    if (error) {
+      console.error("Error fetching data:", error);
+    } else {
+      setData(data);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
