@@ -1,15 +1,74 @@
-import { Text, View } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import React from "react";
+import { useRouter } from "expo-router";
+import { cities } from "../db/cities";
 
 export default function Index() {
+  const router = useRouter();
+
+  const colors = ['#fecaca', '#bfdbfe', '#bbf7d0', '#fef08a', '#ddd6fe', '#fbcfe8', '#c7d2fe', '#99f6e4'];
+
+  // POPRAWIONA FUNKCJA: Usunięto błąd składni ({ item })
+  const renderCityItem = ({ item, index }) => {
+    const backgroundColor = colors[index % colors.length];
+
+    return (
+      <TouchableOpacity 
+        style={[styles.card, { backgroundColor }]} 
+        onPress={() => router.push(`/details/${item.id}`)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.cityText}>{item.name}</Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Lista miast</Text>
+      <FlatList
+        data={cities}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderCityItem}
+        contentContainerStyle={styles.listPadding}
+      />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f3f4f6',
+    padding: 16,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 40,
+    color: '#111827',
+  },
+  card: {
+    padding: 24,
+    marginVertical: 8,
+    borderRadius: 16,
+    // Cień dla Android
+    elevation: 4,
+    // Cień dla iOS
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  cityText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#374151',
+    textAlign: 'center',
+  },
+  listPadding: {
+    paddingBottom: 40,
+  },
+});

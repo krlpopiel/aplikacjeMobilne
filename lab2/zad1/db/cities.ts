@@ -1,0 +1,17 @@
+export const cities = [
+  { id: '1', name: 'Gdańsk', population: 470000 },
+  { id: '2', name: 'Warszawa', population: 1860000 },
+  { id: '3', name: 'Kraków', population: 800000 },
+  { id: '4', name: 'Łódź', population: 690000 },
+  { id: '5', name: 'Wrocław', population: 640000 },
+  { id: '6', name: 'Poznań', population: 540000 },
+  { id: '7', name: 'Gdynia', population: 250000 },
+  { id: '8', name: 'Szczecin', population: 400000 },
+  { id: '9', name: 'Bydgoszcz', population: 350000 },
+  { id: '10', name: 'Lublin', population: 340000 },
+  { id: '11', name: 'Białystok', population: 300000 },
+  { id: '12', name: 'Katowice', population: 290000 },
+  { id: '13', name: 'Gorzów Wielkopolski', population: 120000 },
+  { id: '14', name: 'Opole', population: 120000 },
+  { id: '15', name: 'Rzeszów', population: 190000 },
+]
