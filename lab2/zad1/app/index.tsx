@@ -9,7 +9,7 @@ export default function Index() {
   const colors = ['#fecaca', '#bfdbfe', '#bbf7d0', '#fef08a', '#ddd6fe', '#fbcfe8', '#c7d2fe', '#99f6e4'];
 
   // POPRAWIONA FUNKCJA: Usunięto błąd składni ({ item })
-  const renderCityItem = ({ item, index }) => {
+  const renderCityItem = ({ item, index }: { item: any; index: any }) => {
     const backgroundColor = colors[index % colors.length];
 
     return (
