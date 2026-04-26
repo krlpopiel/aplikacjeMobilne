@@ -70,13 +70,31 @@ export const fetchOtherReaders = async (title: string, author: string, currentUs
     const { data, error } = await supabase
         .from('books')
         .select('user_id, rating, date_added')
-        .eq('title', title)
-        .eq('author', author)
+        .ilike('title', title)
+        .ilike('author', author)
         .eq('status', 'finished')
         .neq('user_id', currentUserId)
 
     if (error) throw error
-    return data as { user_id: string; rating: number; date_added: string }[]
+    const readers = data as { user_id: string; rating: number; date_added: string }[]
+    if (!readers || readers.length === 0) return []
+
+    const userIds = [...new Set(readers.map((r) => r.user_id))]
+    const { data: profiles, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('id, name')
+        .in('id', userIds)
+
+    if (profileError) throw profileError
+
+    const profileMap = new Map((profiles || []).map((p: any) => [p.id, p.name]))
+
+    return readers.map((r) => ({
+        user_id: r.user_id,
+        rating: r.rating,
+        date_added: r.date_added,
+        name: profileMap.get(r.user_id) || r.user_id.substring(0, 8) + '...',
+    }))
 }
 
 export const fetchUserFinishedBooks = async (userId: string) => {

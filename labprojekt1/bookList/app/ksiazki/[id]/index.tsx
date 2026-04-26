@@ -15,7 +15,7 @@ const STATUS_LABELS: Record<string, string> = {
 export default function BookDetail() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const [book, setBook] = useState<Book | null>(null);
-    const [otherReaders, setOtherReaders] = useState<{ user_id: string; rating: number; date_added: string }[]>([]);
+    const [otherReaders, setOtherReaders] = useState<{ user_id: string; name: string; rating: number; date_added: string }[]>([]);
     const userId = useStore((s) => s.userId);
     const router = useRouter();
 
@@ -95,7 +95,7 @@ export default function BookDetail() {
                         <View key={reader.user_id} style={styles.readerRow}>
                             <View>
                                 <TouchableOpacity onPress={() => router.push(`/profil/${reader.user_id}`)}>
-                                    <Text style={styles.readerLink}>{reader.user_id.substring(0, 8)}...</Text>
+                                    <Text style={styles.readerLink}>{reader.name}</Text>
                                 </TouchableOpacity>
                                 <Text style={styles.readerInfo}>
                                     Ocena: {reader.rating > 0 ? reader.rating : '-'}/5 | Przeczytano: {new Date(reader.date_added).toLocaleDateString('pl-PL')}
