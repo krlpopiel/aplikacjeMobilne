@@ -79,12 +79,14 @@ void configureDependencies() {
   getIt.registerFactory(() => GenerateFlashcards(
         materialsRepository: getIt(),
         sseClient: getIt(),
+        ollamaClient: getIt(),
         secureStorage: getIt(),
         textChunker: getIt(),
       ));
   getIt.registerFactory(() => GenerateQuiz(
         materialsRepository: getIt(),
         sseClient: getIt(),
+        ollamaClient: getIt(),
         secureStorage: getIt(),
       ));
   // Ollama use cases
