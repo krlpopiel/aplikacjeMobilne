@@ -1,11 +1,13 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'core/network/dio_client.dart';
+import 'core/network/ollama_client.dart';
 import 'core/network/sse_client.dart';
 import 'core/services/image_ocr_service.dart';
 import 'core/services/pdf_parser_service.dart';
 import 'core/utils/text_chunker.dart';
 import 'features/chat/data/datasources/chat_local_datasource.dart';
+import 'features/chat/data/datasources/ollama_remote_datasource.dart';
 import 'features/chat/data/repositories/chat_repository_impl.dart';
 import 'features/chat/domain/repositories/chat_repository.dart';
 import 'features/chat/domain/usecases/chat_usecases.dart';
@@ -19,6 +21,8 @@ import 'features/materials/domain/usecases/material_usecases.dart';
 import 'features/materials/presentation/bloc/materials_bloc.dart';
 import 'features/quiz/domain/usecases/generate_quiz.dart';
 import 'features/quiz/presentation/bloc/quiz_bloc.dart';
+import 'features/settings/domain/usecases/get_ollama_models.dart';
+import 'features/settings/domain/usecases/test_ollama_connection.dart';
 import 'features/subjects/data/datasources/subjects_local_datasource.dart';
 import 'features/subjects/data/repositories/subjects_repository_impl.dart';
 import 'features/subjects/domain/repositories/subjects_repository.dart';
@@ -33,6 +37,7 @@ void configureDependencies() {
   // Core
   getIt.registerLazySingleton(() => DioClient());
   getIt.registerLazySingleton(() => SseClient(getIt()));
+  getIt.registerLazySingleton(() => OllamaClient());
   getIt.registerLazySingleton(() => TextChunker());
   getIt.registerLazySingleton(() => PdfParserService(getIt()));
   getIt.registerLazySingleton(() => ImageOcrService(getIt(), getIt()));
@@ -42,6 +47,7 @@ void configureDependencies() {
   getIt.registerFactory(() => SubjectsLocalDatasource());
   getIt.registerFactory(() => MaterialsLocalDatasource());
   getIt.registerFactory(() => ChatLocalDatasource());
+  getIt.registerLazySingleton(() => OllamaRemoteDatasource());
 
   // Repositories
   getIt.registerLazySingleton<SubjectsRepository>(
@@ -54,6 +60,7 @@ void configureDependencies() {
     () => ChatRepositoryImpl(
       localDatasource: getIt(),
       sseClient: getIt(),
+      ollamaClient: getIt(),
       secureStorage: getIt(),
     ),
   );
@@ -80,6 +87,9 @@ void configureDependencies() {
         sseClient: getIt(),
         secureStorage: getIt(),
       ));
+  // Ollama use cases
+  getIt.registerFactory(() => GetOllamaModels(getIt()));
+  getIt.registerFactory(() => TestOllamaConnection(getIt()));
 
   // BLoCs
   getIt.registerFactory(() => SubjectsBloc(
@@ -100,6 +110,7 @@ void configureDependencies() {
         chatRepository: getIt(),
         materialsRepository: getIt(),
         textChunker: getIt(),
+        secureStorage: getIt(),
       ));
   getIt.registerFactory(() => FlashcardsBloc(generateFlashcards: getIt()));
   getIt.registerFactory(() => QuizBloc(generateQuiz: getIt()));

@@ -21,6 +21,8 @@ class SseClient {
         yield* _streamAnthropic(systemPrompt, messages, apiKey);
       case AiProvider.openai:
         yield* _streamOpenAi(systemPrompt, messages, apiKey);
+      case AiProvider.ollama:
+        throw UnsupportedError('Ollama uses OllamaClient, not SseClient');
     }
   }
 
@@ -156,6 +158,8 @@ class SseClient {
         return _getAnthropicCompletion(systemPrompt, messages, apiKey);
       case AiProvider.openai:
         return _getOpenAiCompletion(systemPrompt, messages, apiKey);
+      case AiProvider.ollama:
+        throw UnsupportedError('Ollama uses OllamaClient, not SseClient');
     }
   }
 

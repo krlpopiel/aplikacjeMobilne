@@ -17,6 +17,8 @@ class AppConstants {
   // Settings keys
   static const apiProviderKey = 'api_provider';
   static const apiKeyKey = 'api_key';
+  static const ollamaBaseUrlKey = 'ollama_base_url';
+  static const ollamaModelKey = 'ollama_selected_model';
 
   // Subject colors
   static const subjectColors = [

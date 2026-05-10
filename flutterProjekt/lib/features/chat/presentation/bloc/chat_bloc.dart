@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/prompt_constants.dart';
 import '../../../../core/utils/text_chunker.dart';
 import '../../../materials/domain/repositories/materials_repository.dart';
 import '../../domain/repositories/chat_repository.dart';
@@ -10,6 +14,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final ChatRepository _chatRepository;
   final MaterialsRepository _materialsRepository;
   final TextChunker _textChunker;
+  final FlutterSecureStorage _secureStorage;
 
   StreamSubscription<String>? _streamSubscription;
 
@@ -17,9 +22,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required ChatRepository chatRepository,
     required MaterialsRepository materialsRepository,
     required TextChunker textChunker,
+    required FlutterSecureStorage secureStorage,
   })  : _chatRepository = chatRepository,
         _materialsRepository = materialsRepository,
         _textChunker = textChunker,
+        _secureStorage = secureStorage,
         super(const ChatState()) {
     on<LoadConversation>(_onLoadConversation);
     on<SendMessage>(_onSendMessage);
@@ -27,6 +34,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<StreamCompleted>(_onStreamCompleted);
     on<StreamError>(_onStreamError);
     on<ClearChat>(_onClearChat);
+  }
+
+  Future<AiProvider> _getCurrentProvider() async {
+    final providerStr =
+        await _secureStorage.read(key: AppConstants.apiProviderKey);
+    return switch (providerStr) {
+      'openai' => AiProvider.openai,
+      'ollama' => AiProvider.ollama,
+      _ => AiProvider.anthropic,
+    };
   }
 
   Future<void> _onLoadConversation(
@@ -109,6 +126,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       streamingMessage: '',
     ));
 
+    // Determine provider for prompt optimization
+    final provider = await _getCurrentProvider();
+
+    // Adjust topK based on provider (local models have smaller context windows)
+    final topK = provider == AiProvider.ollama
+        ? ApiConstants.topKChunksOllama
+        : ApiConstants.topKChunks;
+
     // Get relevant chunks for RAG
     final chunksResult =
         await _materialsRepository.getAllChunksForSubject(subjectId);
@@ -116,28 +141,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     chunksResult.fold(
       onSuccess: (allChunks) {
         if (allChunks.isNotEmpty) {
-          final relevant =
-              _textChunker.findRelevantChunks(event.content, allChunks);
+          final relevant = _textChunker.findRelevantChunks(
+              event.content, allChunks,
+              topK: topK);
           contextStr = relevant.join('\n\n---\n\n');
         }
       },
       onError: (_) {},
     );
 
+    // Use provider-appropriate prompt
     final systemPrompt = contextStr.isNotEmpty
-        ? '''Jesteś asystentem nauki. Masz dostęp do następujących materiałów studenta:
-
-<context>
-$contextStr
-</context>
-
-Odpowiadaj WYŁĄCZNIE na podstawie powyższych materiałów. 
-Jeśli informacja nie znajduje się w materiałach, powiedz o tym wprost.
-Cytuj konkretne fragmenty gdy to możliwe.
-Odpowiadaj w języku, w którym zadano pytanie.'''
-        : '''Jesteś asystentem nauki. Student nie wgrał jeszcze żadnych materiałów do tego przedmiotu.
-Odpowiadaj na pytania ogólne, ale zasugeruj wgranie materiałów dla lepszych, spersonalizowanych odpowiedzi.
-Odpowiadaj w języku, w którym zadano pytanie.''';
+        ? PromptConstants.ragSystemPrompt(contextStr, provider)
+        : PromptConstants.noMaterialsPrompt(provider);
 
     // Build messages list for API
     final apiMessages = updatedMessages.map((m) {
