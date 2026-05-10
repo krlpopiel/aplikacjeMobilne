@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 
 sealed class MaterialsEvent extends Equatable {
@@ -15,28 +16,28 @@ class LoadMaterials extends MaterialsEvent {
 
 class UploadPdfEvent extends MaterialsEvent {
   final String subjectId;
-  final String filePath;
   final String fileName;
+  final Uint8List fileBytes;
   const UploadPdfEvent({
     required this.subjectId,
-    required this.filePath,
     required this.fileName,
+    required this.fileBytes,
   });
   @override
-  List<Object?> get props => [subjectId, filePath, fileName];
+  List<Object?> get props => [subjectId, fileName];
 }
 
 class UploadImageEvent extends MaterialsEvent {
   final String subjectId;
-  final String filePath;
   final String fileName;
+  final Uint8List fileBytes;
   const UploadImageEvent({
     required this.subjectId,
-    required this.filePath,
     required this.fileName,
+    required this.fileBytes,
   });
   @override
-  List<Object?> get props => [subjectId, filePath, fileName];
+  List<Object?> get props => [subjectId, fileName];
 }
 
 class DeleteMaterialEvent extends MaterialsEvent {

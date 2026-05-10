@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -136,6 +137,7 @@ class ChatRepositoryImpl implements ChatRepository {
         final model = await secureStorage.read(
                 key: AppConstants.ollamaModelKey) ??
             '';
+        debugPrint('[ChatRepo] Ollama: baseUrl=$baseUrl model="$model"');
         if (model.isEmpty) {
           throw const ApiKeyException(
               'Brak wybranego modelu Ollama. Skonfiguruj go w ustawieniach.');

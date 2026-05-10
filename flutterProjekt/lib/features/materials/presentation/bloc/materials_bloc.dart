@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/constants/api_constants.dart';
@@ -64,13 +63,13 @@ class MaterialsBloc extends Bloc<MaterialsEvent, MaterialsState> {
     ));
 
     try {
-      final bytes = await File(event.filePath).readAsBytes();
-      final chunks = await _pdfParser.parsePdfToChunks(bytes);
+      // Use bytes directly — works on both mobile and web
+      final chunks = await _pdfParser.parsePdfToChunks(event.fileBytes);
 
       final result = await _uploadPdf(
         subjectId: event.subjectId,
         name: event.fileName,
-        filePath: event.filePath,
+        filePath: '', // not used for storage, chunks are stored directly
         chunks: chunks,
       );
 
@@ -114,9 +113,9 @@ class MaterialsBloc extends Bloc<MaterialsEvent, MaterialsState> {
           ? AiProvider.openai
           : AiProvider.anthropic;
 
-      final bytes = await File(event.filePath).readAsBytes();
+      // Use bytes directly — works on both mobile and web
       final chunks = await _imageOcr.extractTextFromImage(
-        bytes,
+        event.fileBytes,
         provider: provider,
         apiKey: apiKey,
       );
@@ -124,7 +123,7 @@ class MaterialsBloc extends Bloc<MaterialsEvent, MaterialsState> {
       final result = await _uploadImage(
         subjectId: event.subjectId,
         name: event.fileName,
-        filePath: event.filePath,
+        filePath: '', // not used for storage
         chunks: chunks,
       );
 

@@ -160,14 +160,15 @@ class MaterialsPage extends StatelessWidget {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
+      withData: true, // ensures bytes are available on all platforms
     );
 
-    if (result != null && result.files.single.path != null) {
+    if (result != null && result.files.single.bytes != null) {
       if (context.mounted) {
         context.read<MaterialsBloc>().add(UploadPdfEvent(
               subjectId: subjectId,
-              filePath: result.files.single.path!,
               fileName: result.files.single.name,
+              fileBytes: result.files.single.bytes!,
             ));
       }
     }
@@ -175,14 +176,15 @@ class MaterialsPage extends StatelessWidget {
 
   Future<void> _pickImage(BuildContext context) async {
     final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.camera);
+    final image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
+      final bytes = await image.readAsBytes();
       if (context.mounted) {
         context.read<MaterialsBloc>().add(UploadImageEvent(
               subjectId: subjectId,
-              filePath: image.path,
               fileName: image.name,
+              fileBytes: bytes,
             ));
       }
     }

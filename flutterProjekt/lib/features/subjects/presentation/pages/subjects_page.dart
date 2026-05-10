@@ -77,6 +77,7 @@ class SubjectsPage extends StatelessWidget {
                         conversationCount: subject.conversationCount,
                         onTap: () => context.push('/subjects/${subject.id}'),
                         onDelete: () {
+                          final bloc = context.read<SubjectsBloc>();
                           showDialog(
                             context: context,
                             builder: (ctx) => AlertDialog(
@@ -91,7 +92,7 @@ class SubjectsPage extends StatelessWidget {
                                 ),
                                 FilledButton(
                                   onPressed: () {
-                                    context.read<SubjectsBloc>().add(
+                                    bloc.add(
                                           RemoveSubject(subject.id),
                                         );
                                     Navigator.pop(ctx);
@@ -136,6 +137,7 @@ class SubjectsPage extends StatelessWidget {
   }
 
   void _showAddSubjectDialog(BuildContext context) {
+    final bloc = context.read<SubjectsBloc>();
     final nameController = TextEditingController();
     final descController = TextEditingController();
     final random = Random();
@@ -242,7 +244,7 @@ class SubjectsPage extends StatelessWidget {
                   final name = nameController.text.trim();
                   if (name.isEmpty) return;
 
-                  context.read<SubjectsBloc>().add(AddSubject(
+                  bloc.add(AddSubject(
                         name: name,
                         description: descController.text.trim().isEmpty
                             ? null
